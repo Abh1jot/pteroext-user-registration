@@ -1,0 +1,20 @@
+{
+    "name": "azion/user-registration",
+    "description": "Enables modern public user self-registration with bot protection, disposable email blocking, domain whitelisting, and administrative management in Pterodactyl 2.0.",
+    "type": "pterodactyl-extension",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Azion",
+            "email": "support@azioncloud.com"
+        }
+    ],
+    "require": {
+        "php": ">=8.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "UserRegistration\\": "src/"
+        }
+    }
+}

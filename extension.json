@@ -1,0 +1,33 @@
+{
+    "$schema": "https://raw.githubusercontent.com/pterodactyl/panel/2.0-develop/packages/sdk/manifest.schema.json",
+    "id": "user-registration",
+    "name": "User Registration",
+    "version": "1.0.0",
+    "description": "Enables modern public user self-registration with bot protection, disposable email blocking, domain whitelisting, and administrative management in Pterodactyl 2.0.",
+    "author": "Azion",
+    "requires": {
+        "sdk": ">=2.0.0-beta.5 <3.0",
+        "php": ">=8.2"
+    },
+    "provider": "UserRegistration\\UserRegistrationProvider",
+    "autoload": {
+        "UserRegistration\\": "src"
+    },
+    "ui": {
+        "entry": "dist/client.js",
+        "screens": [
+            {
+                "id": "admin-registration",
+                "area": "admin",
+                "path": "registration",
+                "nav": {
+                    "label": "User Registration",
+                    "order": 55,
+                    "icon": "user-plus"
+                }
+            }
+        ],
+        "mode": "native",
+        "prefix": "ureg"
+    }
+}
