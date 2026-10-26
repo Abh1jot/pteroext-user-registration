@@ -5,7 +5,7 @@ import { RegisterModal } from './components/RegisterModal';
 import './styles.css';
 
 /**
- * Public Registration Floating Action & Modal Host Component
+ * Public Registration Modal and Inline Link Host Component
  */
 const RegistrationPublicHost: React.FC = () => {
     const [modalOpen, setModalOpen] = useState(false);
@@ -25,11 +25,96 @@ const RegistrationPublicHost: React.FC = () => {
         return () => window.removeEventListener('hashchange', checkHash);
     }, []);
 
-    // Detect if current page is the authentication/login page
-    const isAuthPage = typeof window !== 'undefined' && (
-        window.location.pathname.includes('/auth') ||
-        window.location.pathname.includes('/login')
-    );
+    // Inject the registration link directly under "Forgot password?" in the login card/section
+    useEffect(() => {
+        if (typeof document === 'undefined') return;
+
+        const INLINE_ID = 'pteroext-reg-inline-link';
+        const CONTAINER_ID = 'pteroext-reg-inline-container';
+
+        const updateInlineLink = () => {
+            // Do not inject if user is authenticated or already injected
+            if ((window as any).PterodactylUser) return;
+            if (document.getElementById(INLINE_ID)) return;
+
+            // Only mount on auth / login pages
+            const isAuth = window.location.pathname.includes('/auth') || window.location.pathname.includes('/login');
+            if (!isAuth) return;
+
+            // Find the "Forgot password" link
+            const forgotLink = document.querySelector('a[href*="/auth/password"], a[href*="/password"]');
+            if (!forgotLink) return;
+
+            // Create container
+            const container = document.createElement('div');
+            container.id = CONTAINER_ID;
+
+            // Create registration link with exact same font and styling as forgot password
+            const regLink = document.createElement('a');
+            regLink.id = INLINE_ID;
+            regLink.href = '#register';
+            regLink.textContent = 'Create an account';
+
+            // Inherit classes from forgot password link
+            if (forgotLink.className) {
+                regLink.className = forgotLink.className;
+            }
+
+            // Copy computed styling to ensure 100% font and visual alignment across themes
+            const computed = window.getComputedStyle(forgotLink);
+            regLink.style.fontFamily = computed.fontFamily;
+            regLink.style.fontSize = computed.fontSize;
+            regLink.style.fontWeight = computed.fontWeight;
+            regLink.style.lineHeight = computed.lineHeight;
+            regLink.style.letterSpacing = computed.letterSpacing;
+            regLink.style.textTransform = computed.textTransform;
+            regLink.style.cursor = 'pointer';
+            regLink.style.display = 'inline-block';
+
+            // Handle layout positioning based on parent container structure
+            const parent = forgotLink.parentElement;
+            const isFlexRow = parent && (
+                window.getComputedStyle(parent).display === 'flex' ||
+                parent.className.includes('flex')
+            ) && parent.children.length > 1;
+
+            if (isFlexRow && parent) {
+                // If in a flex row (e.g. label on left, forgot password on right), place directly beneath right-aligned
+                container.style.display = 'block';
+                container.style.textAlign = 'right';
+                container.style.marginTop = '4px';
+                container.style.marginBottom = '2px';
+                parent.insertAdjacentElement('afterend', container);
+            } else if (parent) {
+                // If in a centered or block container, place directly under forgot password
+                container.style.display = 'block';
+                container.style.marginTop = '6px';
+                container.style.textAlign = computed.textAlign || 'center';
+                forgotLink.insertAdjacentElement('afterend', container);
+            }
+
+            regLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                setModalOpen(true);
+            });
+
+            container.appendChild(regLink);
+        };
+
+        updateInlineLink();
+
+        const observer = new MutationObserver(() => {
+            updateInlineLink();
+        });
+
+        observer.observe(document.body, { childList: true, subtree: true });
+
+        return () => {
+            observer.disconnect();
+            const el = document.getElementById(CONTAINER_ID);
+            if (el) el.remove();
+        };
+    }, []);
 
     // If user is already authenticated, don't show registration prompt
     const isAuthenticated = typeof window !== 'undefined' && Boolean((window as any).PterodactylUser);
@@ -38,61 +123,21 @@ const RegistrationPublicHost: React.FC = () => {
     }
 
     return (
-        <>
-            {/* Direct Register Modal */}
-            <RegisterModal
-                isOpen={modalOpen}
-                onClose={() => {
-                    setModalOpen(false);
-                    if (window.location.hash === '#register') {
-                        history.replaceState(null, '', window.location.pathname);
-                    }
-                }}
-                onSwitchToLogin={() => {
-                    setModalOpen(false);
-                    if (window.location.hash === '#register') {
-                        history.replaceState(null, '', window.location.pathname);
-                    }
-                }}
-            />
-
-            {/* Quick Registration Button on Login Pages */}
-            {isAuthPage && !modalOpen && (
-                <div
-                    id="pteroext-reg-quick-btn"
-                    style={{
-                        position: 'fixed',
-                        top: 24,
-                        right: 24,
-                        zIndex: 9999,
-                    }}
-                >
-                    <button
-                        type="button"
-                        onClick={() => setModalOpen(true)}
-                        className="reg-btn reg-btn-primary"
-                        style={{
-                            height: 38,
-                            padding: '0 16px',
-                            fontSize: '0.84rem',
-                            borderRadius: 8,
-                            boxShadow: '0 4px 14px rgba(79, 70, 229, 0.4)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 8,
-                        }}
-                    >
-                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2" fill="none">
-                            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                            <circle cx="8.5" cy="7" r="4" />
-                            <line x1="20" y1="8" x2="20" y2="14" />
-                            <line x1="23" y1="11" x2="17" y2="11" />
-                        </svg>
-                        <span>Create Account</span>
-                    </button>
-                </div>
-            )}
-        </>
+        <RegisterModal
+            isOpen={modalOpen}
+            onClose={() => {
+                setModalOpen(false);
+                if (window.location.hash === '#register') {
+                    history.replaceState(null, '', window.location.pathname);
+                }
+            }}
+            onSwitchToLogin={() => {
+                setModalOpen(false);
+                if (window.location.hash === '#register') {
+                    history.replaceState(null, '', window.location.pathname);
+                }
+            }}
+        />
     );
 };
 
@@ -133,16 +178,10 @@ if (typeof document !== 'undefined') {
 }
 
 export default definePterodactylExtension({
-    setup({ screens, slots }: any = {}) {
+    setup({ screens }: any = {}) {
         // Register Admin Registration screen
         if (screens && typeof screens.register === 'function') {
             screens.register('admin-registration', () => import('./screens/AdminRegistrationScreen'));
-        }
-
-        // Register slots if available in theme
-        if (slots && typeof slots.register === 'function') {
-            slots.register('auth.login.after', RegistrationPublicHost);
-            slots.register('auth.container.after', RegistrationPublicHost);
         }
 
         // Ensure global host is mounted for all themes
