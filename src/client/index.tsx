@@ -1,3 +1,4 @@
+import AdminRegistrationScreen from './screens/AdminRegistrationScreen';
 import React, { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import { definePterodactylExtension } from '@pterodactyl/sdk';
@@ -184,7 +185,7 @@ export default definePterodactylExtension({
     setup({ screens }: any = {}) {
         // Register Admin Registration screen
         if (screens && typeof screens.register === 'function') {
-            screens.register('admin-registration', () => import('./screens/AdminRegistrationScreen'));
+            screens.register('admin-registration', () => Promise.resolve({ default: AdminRegistrationScreen }));
         }
 
         // Ensure global host is mounted for all themes
