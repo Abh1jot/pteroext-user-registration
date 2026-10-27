@@ -76,7 +76,7 @@ class RegistrationController extends Controller
         $rules = [
             'firstname' => 'required|string|min:1|max:50',
             'lastname' => 'required|string|min:1|max:50',
-            'username' => 'required|string|min:3|max:30|regex:/^[a-zA-Z0-9_\-\.]+$/',
+            'username' => ['required', 'string', 'min:3', 'max:30', 'regex:/^[a-zA-Z0-9][a-zA-Z0-9_\-\.]*[a-zA-Z0-9]$/'],
             'email' => 'required|string|email|max:191',
             'password' => "required|string|min:{$minPass}|confirmed",
         ];
@@ -86,7 +86,7 @@ class RegistrationController extends Controller
         }
 
         $validator = Validator::make($request->all(), $rules, [
-            'username.regex' => 'Username may only contain letters, numbers, hyphens, periods, and underscores.',
+            'username.regex' => 'Username must start and end with a letter or number, and may contain hyphens, underscores, and periods.',
             'password.confirmed' => 'The password confirmation does not match.',
             'password.min' => "Password must be at least {$minPass} characters long.",
             'terms.accepted' => 'You must agree to the Terms of Service & Privacy Policy to register.',
@@ -151,45 +151,45 @@ class RegistrationController extends Controller
             return response()->json(['error' => 'An account with that email address already exists.'], 422);
         }
 
-        if (User::where('username', $username)->exists()) {
+        if (User::whereRaw('LOWER(username) = ?', [mb_strtolower($username)])->exists()) {
             return response()->json(['error' => 'That username is already taken. Please choose another.'], 422);
         }
 
         // 8. Create the user
         try {
+            $user = null;
             $userData = [
+                'uuid' => Uuid::uuid4()->toString(),
                 'email' => $email,
-                'username' => $username,
+                'username' => mb_strtolower($username),
                 'name_first' => $firstname,
                 'name_last' => $lastname,
-                'password' => $password,
+                'password' => Hash::make($password),
                 'root_admin' => false,
+                'language' => 'en',
+                'language_set' => false,
+                'use_totp' => false,
+                'totp_secret' => null,
+                'gravatar' => true,
             ];
 
-            $user = null;
-
-            // Attempt using native Pterodactyl UserCreationService if available
-            if (app()->has(\Pterodactyl\Services\Users\UserCreationService::class)) {
-                try {
-                    $creator = app(\Pterodactyl\Services\Users\UserCreationService::class);
-                    $user = $creator->handle($userData);
-                } catch (\Throwable $e) {
-                    $user = null;
+            // Attempt using native Pterodactyl UserRepositoryInterface if available
+            try {
+                if (app()->bound(\Pterodactyl\Contracts\Repository\UserRepositoryInterface::class)) {
+                    /** @var \Pterodactyl\Contracts\Repository\UserRepositoryInterface $repo */
+                    $repo = app(\Pterodactyl\Contracts\Repository\UserRepositoryInterface::class);
+                    $user = $repo->create($userData, false, true);
                 }
+            } catch (\Throwable $repoErr) {
+                \Illuminate\Support\Facades\Log::warning('[UserRegistration] UserRepository error: ' . $repoErr->getMessage());
+                $user = null;
             }
 
             // Fallback direct Eloquent creation
             if (!$user) {
                 $user = new User();
-                $user->uuid = Uuid::uuid4()->toString();
-                $user->email = $email;
-                $user->username = $username;
-                $user->name_first = $firstname;
-                $user->name_last = $lastname;
-                $user->password = Hash::make($password);
-                $user->root_admin = false;
-                $user->language = 'en';
-                $user->save();
+                $user->forceFill($userData);
+                $user->skipValidation()->save();
             }
 
             // Log successful registration
@@ -205,21 +205,10 @@ class RegistrationController extends Controller
                 'user_agent' => $userAgent,
             ]);
 
-            // Auto-login user if enabled
-            $autoLoggedIn = false;
-            if (!empty($settings['auto_login'])) {
-                try {
-                    Auth::login($user, true);
-                    $request->session()->regenerate();
-                    $autoLoggedIn = true;
-                } catch (\Throwable $e) {}
-            }
-
             return response()->json([
                 'success' => true,
-                'message' => 'Your account has been created successfully!',
-                'auto_login' => $autoLoggedIn,
-                'redirect' => $autoLoggedIn ? '/' : '/auth/login',
+                'message' => 'Account created successfully! Redirecting to login...',
+                'redirect' => '/auth/login',
                 'user' => [
                     'id' => $user->id,
                     'username' => $user->username,

@@ -136,6 +136,9 @@ const RegistrationPublicHost: React.FC = () => {
                 if (window.location.hash === '#register') {
                     history.replaceState(null, '', window.location.pathname);
                 }
+                if (!window.location.pathname.includes('/auth/login') && !window.location.pathname.includes('/login')) {
+                    window.location.href = '/auth/login';
+                }
             }}
         />
     );

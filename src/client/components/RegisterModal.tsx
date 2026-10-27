@@ -53,8 +53,9 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, o
 
         const fetchConfig = async () => {
             const urls = [
-                '/api/client/extensions/user-registration/config',
                 '/api/public/registration/config',
+                '/auth/public-register/config',
+                '/api/client/extensions/user-registration/config',
             ];
 
             for (const url of urls) {
@@ -86,7 +87,7 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, o
 
         if (score <= 1) return { score: 1, text: 'Weak', color: '#ef4444' };
         if (score === 2) return { score: 2, text: 'Fair', color: '#f59e0b' };
-        if (score === 3) return { score: 3, text: 'Good', color: '#818cf8' };
+        if (score === 3) return { score: 3, text: 'Good', color: 'var(--reg-primary, #2563eb)' };
         return { score: 4, text: 'Strong', color: '#10b981' };
     };
 
@@ -159,8 +160,10 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, o
         };
 
         const endpoints = [
-            '/api/client/extensions/user-registration/register',
             '/api/public/registration/register',
+            '/auth/public-register/register',
+            '/auth/public-register',
+            '/api/client/extensions/user-registration/register',
         ];
 
         let succeeded = false;
@@ -179,21 +182,25 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, o
                     body: JSON.stringify(payload),
                 });
 
-                const data = await res.json();
+                if (res.status === 404) {
+                    continue;
+                }
+
+                const data = await res.json().catch(() => null);
+                if (!data) continue;
 
                 if (res.ok && data.success) {
                     succeeded = true;
-                    setSuccessMessage(data.message || 'Account created successfully!');
+                    setSuccessMessage(data.message || 'Account created successfully! Redirecting to login...');
 
-                    // If auto-logged in, navigate to dashboard immediately
-                    if (data.auto_login) {
-                        setTimeout(() => {
-                            window.location.href = data.redirect || '/';
-                        }, 1200);
-                    }
+                    // Redirect to login after making account as requested
+                    setTimeout(() => {
+                        window.location.href = data.redirect || '/auth/login';
+                    }, 1200);
                     break;
-                } else if (data.error) {
-                    setErrorMessage(data.error);
+                } else if (data.error || data.errors) {
+                    const err = data.error || (Array.isArray(data.errors) ? data.errors[0]?.detail : null) || 'Registration failed.';
+                    setErrorMessage(err);
                     break;
                 }
             } catch (err: any) {
@@ -244,30 +251,27 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, o
                                 <polyline points="20 6 9 17 4 12" />
                             </svg>
                         </div>
-                        <h3 style={{ fontSize: '1.1rem', fontWeight: 600, color: '#ffffff', margin: '0 0 8px 0' }}>
-                            Welcome Aboard!
+                        <h3 style={{ fontSize: '1.15rem', fontWeight: 600, color: '#ffffff', margin: '0 0 8px 0' }}>
+                            Registration Successful!
                         </h3>
-                        <p style={{ fontSize: '0.84rem', color: 'var(--reg-text-muted)', margin: '0 0 24px 0', lineHeight: 1.5 }}>
+                        <p style={{ fontSize: '0.84rem', color: 'var(--reg-text-muted)', margin: '0 0 20px 0', lineHeight: 1.5 }}>
                             {successMessage}
                         </p>
-                        {config.auto_login ? (
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontSize: '0.8125rem', color: '#818cf8' }}>
-                                <span className="reg-spinner" />
-                                <span>Redirecting you to dashboard...</span>
-                            </div>
-                        ) : (
-                            <button
-                                type="button"
-                                className="reg-btn reg-btn-primary"
-                                style={{ width: '100%', height: 42 }}
-                                onClick={() => {
-                                    if (onSwitchToLogin) onSwitchToLogin();
-                                    else window.location.href = '/auth/login';
-                                }}
-                            >
-                                Proceed to Login
-                            </button>
-                        )}
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontSize: '0.8125rem', color: 'var(--reg-primary, #2563eb)', marginBottom: 18 }}>
+                            <span className="reg-spinner" style={{ borderTopColor: 'var(--reg-primary, #2563eb)' }} />
+                            <span>Redirecting to login...</span>
+                        </div>
+                        <button
+                            type="button"
+                            className="reg-btn reg-btn-primary"
+                            style={{ width: '100%', height: 42 }}
+                            onClick={() => {
+                                if (onSwitchToLogin) onSwitchToLogin();
+                                else window.location.href = '/auth/login';
+                            }}
+                        >
+                            Proceed to Login
+                        </button>
                     </div>
                 ) : (
                     /* Form View */
@@ -461,16 +465,16 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, o
                                         type="checkbox"
                                         checked={agreedTerms}
                                         onChange={(e) => setAgreedTerms(e.target.checked)}
-                                        style={{ marginTop: 2, accentColor: '#6366f1' }}
+                                        style={{ marginTop: 2, accentColor: 'var(--reg-primary, #2563eb)' }}
                                         required
                                     />
                                     <span>
                                         I agree to the{' '}
-                                        <a href={config.terms_url} target="_blank" rel="noopener noreferrer" style={{ color: '#818cf8', textDecoration: 'underline' }}>
+                                        <a href={config.terms_url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--reg-primary, #2563eb)', textDecoration: 'underline' }}>
                                             Terms of Service
                                         </a>{' '}
                                         and{' '}
-                                        <a href={config.privacy_url} target="_blank" rel="noopener noreferrer" style={{ color: '#818cf8', textDecoration: 'underline' }}>
+                                        <a href={config.privacy_url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--reg-primary, #2563eb)', textDecoration: 'underline' }}>
                                             Privacy Policy
                                         </a>.
                                     </span>
@@ -506,7 +510,7 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, o
                                     if (onSwitchToLogin) onSwitchToLogin();
                                     else window.location.href = '/auth/login';
                                 }}
-                                style={{ background: 'transparent', border: 'none', color: '#818cf8', fontWeight: 600, cursor: 'pointer', padding: 0 }}
+                                style={{ background: 'transparent', border: 'none', color: 'var(--reg-primary, #2563eb)', fontWeight: 600, cursor: 'pointer', padding: 0 }}
                             >
                                 Sign in here &rarr;
                             </button>
