@@ -26,33 +26,33 @@ class UserRegistrationProvider extends ExtensionProvider
 
         if (class_exists(ExtensionSettingsDefinition::class) && class_exists(ExtensionSettingDefinition::class)) {
             $this->registerSettings(new ExtensionSettingsDefinition($this->settings(), [
-                ExtensionSettingDefinition::make('enabled', 'toggle', true)
+                ExtensionSettingDefinition::make('enabled', 'enabled', true)
                     ->label('Enable Public Registration')
                     ->help('Allow new visitors to register their own accounts on the panel.')
                     ->field('toggle')
                     ->frontend(),
-                ExtensionSettingDefinition::make('auto_login', 'toggle', true)
+                ExtensionSettingDefinition::make('auto_login', 'auto_login', true)
                     ->label('Automatic Login After Registration')
                     ->help('Instantly authenticate and log the user in upon successful registration.')
                     ->field('toggle')
                     ->frontend(),
-                ExtensionSettingDefinition::make('require_terms', 'toggle', false)
+                ExtensionSettingDefinition::make('require_terms', 'require_terms', false)
                     ->label('Require Terms & Privacy Agreement')
                     ->help('Force users to check an agreement box before submitting their registration.')
                     ->field('toggle')
                     ->frontend(),
-                ExtensionSettingDefinition::make('terms_url', 'text', '/terms')
+                ExtensionSettingDefinition::make('terms_url', 'terms_url', '/terms')
                     ->label('Terms of Service URL')
                     ->frontend(),
-                ExtensionSettingDefinition::make('privacy_url', 'text', '/privacy')
+                ExtensionSettingDefinition::make('privacy_url', 'privacy_url', '/privacy')
                     ->label('Privacy Policy URL')
                     ->frontend(),
-                ExtensionSettingDefinition::make('block_disposable_emails', 'toggle', true)
+                ExtensionSettingDefinition::make('block_disposable_emails', 'block_disposable_emails', true)
                     ->label('Block Disposable & Temporary Emails')
                     ->help('Automatically block registrations using throwaway email domains (tempmail, 10minutemail, etc.).')
                     ->field('toggle')
                     ->frontend(),
-                ExtensionSettingDefinition::make('bot_protection', 'select', 'none')
+                ExtensionSettingDefinition::make('bot_protection', 'bot_protection', 'none')
                     ->label('Bot Protection / Captcha')
                     ->field('select', [
                         ['value' => 'none', 'label' => 'None (Disabled)'],
@@ -61,12 +61,12 @@ class UserRegistrationProvider extends ExtensionProvider
                         ['value' => 'recaptcha_v3', 'label' => 'Google reCAPTCHA v3'],
                     ])
                     ->frontend(),
-                ExtensionSettingDefinition::make('captcha_site_key', 'text', '')
+                ExtensionSettingDefinition::make('captcha_site_key', 'captcha_site_key', '')
                     ->label('Captcha Site Key')
                     ->frontend(),
-                ExtensionSettingDefinition::make('captcha_secret_key', 'text', '')
+                ExtensionSettingDefinition::make('captcha_secret_key', 'captcha_secret_key', '')
                     ->label('Captcha Secret Key'),
-                ExtensionSettingDefinition::make('min_password_length', 'text', '8')
+                ExtensionSettingDefinition::make('min_password_length', 'min_password_length', '8')
                     ->label('Minimum Password Length')
                     ->frontend(),
             ]));
