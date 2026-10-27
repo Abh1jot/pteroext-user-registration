@@ -4,21 +4,21 @@
    ========================================================================== */
 
 :root {
-    --reg-bg: var(--gray900, var(--bg-primary, #0c1220));
-    --reg-card-bg: var(--fallBackGray, var(--gray700, var(--bg-card, #161d27)));
-    --reg-card-border: var(--borderInput, rgba(255, 255, 255, 0.08));
-    --reg-primary: var(--primary, var(--accent, #2563eb));
-    --reg-primary-hover: var(--primary-hover, #1d4ed8);
-    --reg-primary-glow: rgba(37, 99, 235, 0.2);
-    --reg-text-main: var(--gray50, #f8fafc);
-    --reg-text-muted: var(--gray300, #94a3b8);
-    --reg-text-subtle: var(--gray400, #64748b);
-    --reg-success: var(--successText, #10b981);
-    --reg-danger: var(--dangerText, #ef4444);
+    --reg-bg: transparent;
+    --reg-card-bg: var(--card, rgba(255, 255, 255, 0.04));
+    --reg-card-border: var(--border, rgba(255, 255, 255, 0.08));
+    --reg-primary: var(--primary, #2563eb);
+    --reg-primary-hover: color-mix(in srgb, var(--primary, #2563eb) 85%, #ffffff 15%);
+    --reg-primary-glow: color-mix(in srgb, var(--primary, #2563eb) 25%, transparent);
+    --reg-text-main: var(--foreground, #f8fafc);
+    --reg-text-muted: var(--muted-foreground, #94a3b8);
+    --reg-text-subtle: color-mix(in srgb, var(--muted-foreground, #94a3b8) 75%, transparent);
+    --reg-success: #10b981;
+    --reg-danger: var(--destructive, #ef4444);
     --reg-warning: #f59e0b;
-    --reg-input-bg: var(--gray800, rgba(0, 0, 0, 0.32));
-    --reg-input-border: var(--borderInput, rgba(255, 255, 255, 0.12));
-    --reg-input-focus: var(--reg-primary);
+    --reg-input-bg: var(--input, rgba(255, 255, 255, 0.05));
+    --reg-input-border: var(--border, rgba(255, 255, 255, 0.12));
+    --reg-input-focus: var(--ring, var(--reg-primary));
 }
 
 .reg-container {
@@ -29,6 +29,7 @@
     box-sizing: border-box;
     color: var(--reg-text-main);
     font-family: inherit;
+    background: transparent;
 }
 
 @media (min-width: 640px) {
