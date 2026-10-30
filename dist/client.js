@@ -1,10 +1,10 @@
 await Promise.all(["user-registration.css"].map(file => new Promise((resolve, reject) => {const href = new URL(file, import.meta.url).href;if (document.querySelector('link[href="' + href + '"]')) return resolve();const link = document.createElement('link');link.rel = 'stylesheet';link.href = href;link.onload = () => resolve();link.onerror = () => { link.remove(); reject(new Error('Unable to load extension stylesheet: ' + file)); };document.head.append(link);})));
-import { jsxs as t, jsx as e, Fragment as j } from "react/jsx-runtime";
-import { useState as l, useEffect as R } from "react";
-import { toast as P, definePterodactylExtension as Z } from "@pterodactyl/sdk";
-import { createRoot as Y } from "react-dom/client";
-function Q() {
-  const m = typeof window < "u" && (window.PterodactylUser?.root_admin === !0 || window.PterodactylUser?.root_admin === 1 || window.PterodactylUser?.admin === !0 || window.store?.getState?.()?.user?.data?.rootAdmin === !0), [o, h] = l("settings"), [n, v] = l(!0), [w, _] = l(!1), [N, f] = l(!1), [a, i] = l({
+import { jsxs as t, jsx as e, Fragment as z } from "react/jsx-runtime";
+import { useState as l, useEffect as E } from "react";
+import { toast as R, definePterodactylExtension as ee } from "@pterodactyl/sdk";
+import { createRoot as te } from "react-dom/client";
+function re() {
+  const p = typeof window < "u" && (window.PterodactylUser?.root_admin === !0 || window.PterodactylUser?.root_admin === 1 || window.PterodactylUser?.admin === !0 || window.store?.getState?.()?.user?.data?.rootAdmin === !0), [o, m] = l("settings"), [n, N] = l(!0), [x, _] = l(!1), [w, b] = l(!1), [a, i] = l({
     enabled: !0,
     auto_login: !0,
     require_terms: !1,
@@ -21,56 +21,56 @@ function Q() {
     require_number: !0,
     rate_limit_per_hour: 5,
     welcome_email_enabled: !0
-  }), [c, y] = l({
+  }), [c, v] = l({
     total_registered: 0,
     registered_today: 0,
     registered_this_week: 0,
     blocked_attempts: 0
-  }), [x, A] = l([]), [g, L] = l(!1), u = () => window.PterodactylUser?.csrfToken || document.querySelector('meta[name="csrf-token"]')?.getAttribute("content") || "", W = async () => {
-    v(!0);
+  }), [k, T] = l([]), [u, q] = l(!1), f = () => window.PterodactylUser?.csrfToken || document.querySelector('meta[name="csrf-token"]')?.getAttribute("content") || "", I = async () => {
+    N(!0);
     try {
       const r = await fetch("/api/admin/extensions/user-registration/settings", {
         headers: {
           Accept: "application/json",
-          "X-CSRF-TOKEN": u()
+          "X-CSRF-TOKEN": f()
         },
         credentials: "same-origin"
       });
       if (r.ok) {
         const d = await r.json();
-        d.settings && i(d.settings), d.stats && y(d.stats);
+        d.settings && i(d.settings), d.stats && v(d.stats);
       }
     } catch (r) {
       console.error("Failed to load admin registration settings:", r);
     } finally {
-      v(!1);
+      N(!1);
     }
-  }, S = async () => {
-    L(!0);
+  }, P = async () => {
+    q(!0);
     try {
       const r = await fetch("/api/admin/extensions/user-registration/logs", {
         headers: {
           Accept: "application/json",
-          "X-CSRF-TOKEN": u()
+          "X-CSRF-TOKEN": f()
         },
         credentials: "same-origin"
       });
       if (r.ok) {
         const d = await r.json();
-        A(d.logs || []);
+        T(d.logs || []);
       }
     } catch (r) {
       console.error("Failed to fetch registration logs:", r);
     } finally {
-      L(!1);
+      q(!1);
     }
   };
-  R(() => {
-    W();
-  }, []), R(() => {
-    o === "logs" && S();
+  E(() => {
+    I();
+  }, []), E(() => {
+    o === "logs" && P();
   }, [o]);
-  const M = async () => {
+  const j = async () => {
     _(!0);
     try {
       const r = await fetch("/api/admin/extensions/user-registration/settings", {
@@ -78,37 +78,37 @@ function Q() {
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
-          "X-CSRF-TOKEN": u()
+          "X-CSRF-TOKEN": f()
         },
         credentials: "same-origin",
         body: JSON.stringify(a)
       }), d = await r.json();
-      r.ok ? (P.success(d.message || "Settings saved successfully"), d.settings && i(d.settings)) : P.error(d.error || "Failed to save settings");
+      r.ok ? (R.success(d.message || "Settings saved successfully"), d.settings && i(d.settings)) : R.error(d.error || "Failed to save settings");
     } catch (r) {
-      P.error(r.message || "Error saving settings");
+      R.error(r.message || "Error saving settings");
     } finally {
       _(!1);
     }
   }, C = async () => {
     if (window.confirm("Are you sure you want to clear all registration audit logs?")) {
-      f(!0);
+      b(!0);
       try {
         (await fetch("/api/admin/extensions/user-registration/logs", {
           method: "DELETE",
           headers: {
             Accept: "application/json",
-            "X-CSRF-TOKEN": u()
+            "X-CSRF-TOKEN": f()
           },
           credentials: "same-origin"
-        })).ok ? (P.success("Registration audit logs cleared"), A([])) : P.error("Failed to clear logs");
+        })).ok ? (R.success("Registration audit logs cleared"), T([])) : R.error("Failed to clear logs");
       } catch (r) {
-        P.error(r.message || "Error clearing logs");
+        R.error(r.message || "Error clearing logs");
       } finally {
-        f(!1);
+        b(!1);
       }
     }
   };
-  return m ? /* @__PURE__ */ t("div", { className: "reg-container", children: [
+  return p ? /* @__PURE__ */ t("div", { className: "reg-container", children: [
     /* @__PURE__ */ t("div", { className: "reg-header", children: [
       /* @__PURE__ */ t("div", { className: "reg-title-wrap", children: [
         /* @__PURE__ */ t("div", { style: { display: "flex", alignItems: "center", gap: 10 }, children: [
@@ -122,12 +122,12 @@ function Q() {
         {
           type: "button",
           className: "reg-btn reg-btn-primary",
-          onClick: M,
-          disabled: w || n,
-          children: w ? /* @__PURE__ */ t(j, { children: [
+          onClick: j,
+          disabled: x || n,
+          children: x ? /* @__PURE__ */ t(z, { children: [
             /* @__PURE__ */ e("span", { className: "reg-spinner" }),
             /* @__PURE__ */ e("span", { children: "Saving Changes..." })
-          ] }) : /* @__PURE__ */ t(j, { children: [
+          ] }) : /* @__PURE__ */ t(z, { children: [
             /* @__PURE__ */ t("svg", { viewBox: "0 0 24 24", width: "16", height: "16", stroke: "currentColor", strokeWidth: "2", fill: "none", children: [
               /* @__PURE__ */ e("path", { d: "M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" }),
               /* @__PURE__ */ e("polyline", { points: "17 21 17 13 7 13 7 21" }),
@@ -187,7 +187,7 @@ function Q() {
         {
           type: "button",
           className: `reg-tab-btn ${o === "settings" ? "active" : ""}`,
-          onClick: () => h("settings"),
+          onClick: () => m("settings"),
           children: "General"
         }
       ),
@@ -196,7 +196,7 @@ function Q() {
         {
           type: "button",
           className: `reg-tab-btn ${o === "security" ? "active" : ""}`,
-          onClick: () => h("security"),
+          onClick: () => m("security"),
           children: "Security & Captcha"
         }
       ),
@@ -205,7 +205,7 @@ function Q() {
         {
           type: "button",
           className: `reg-tab-btn ${o === "emails" ? "active" : ""}`,
-          onClick: () => h("emails"),
+          onClick: () => m("emails"),
           children: "Email Policies"
         }
       ),
@@ -214,7 +214,7 @@ function Q() {
         {
           type: "button",
           className: `reg-tab-btn ${o === "logs" ? "active" : ""}`,
-          onClick: () => h("logs"),
+          onClick: () => m("logs"),
           children: "Audit Logs"
         }
       )
@@ -476,8 +476,8 @@ function Q() {
             {
               type: "button",
               className: "reg-btn reg-btn-secondary",
-              onClick: S,
-              disabled: g,
+              onClick: P,
+              disabled: u,
               children: "Refresh"
             }
           ),
@@ -487,16 +487,16 @@ function Q() {
               type: "button",
               className: "reg-btn reg-btn-danger",
               onClick: C,
-              disabled: N || x.length === 0,
+              disabled: w || k.length === 0,
               children: "Clear History"
             }
           )
         ] })
       ] }),
-      g ? /* @__PURE__ */ t("div", { style: { textAlign: "center", padding: "40px 0", color: "var(--reg-text-muted)" }, children: [
+      u ? /* @__PURE__ */ t("div", { style: { textAlign: "center", padding: "40px 0", color: "var(--reg-text-muted)" }, children: [
         /* @__PURE__ */ e("span", { className: "reg-spinner" }),
         /* @__PURE__ */ e("p", { style: { marginTop: 8, fontSize: "0.84rem" }, children: "Loading logs..." })
-      ] }) : x.length === 0 ? /* @__PURE__ */ e("div", { style: { textAlign: "center", padding: "40px 0", color: "var(--reg-text-muted)", fontSize: "0.84rem" }, children: "No registration activity recorded yet." }) : /* @__PURE__ */ e("div", { className: "reg-table-wrap", children: /* @__PURE__ */ t("table", { className: "reg-table", children: [
+      ] }) : k.length === 0 ? /* @__PURE__ */ e("div", { style: { textAlign: "center", padding: "40px 0", color: "var(--reg-text-muted)", fontSize: "0.84rem" }, children: "No registration activity recorded yet." }) : /* @__PURE__ */ e("div", { className: "reg-table-wrap", children: /* @__PURE__ */ t("table", { className: "reg-table", children: [
         /* @__PURE__ */ e("thead", { children: /* @__PURE__ */ t("tr", { children: [
           /* @__PURE__ */ e("th", { children: "Date & Time" }),
           /* @__PURE__ */ e("th", { children: "User Details" }),
@@ -504,7 +504,7 @@ function Q() {
           /* @__PURE__ */ e("th", { children: "Status" }),
           /* @__PURE__ */ e("th", { children: "Details" })
         ] }) }),
-        /* @__PURE__ */ e("tbody", { children: x.map((r) => {
+        /* @__PURE__ */ e("tbody", { children: k.map((r) => {
           let d = "reg-badge-neutral";
           return r.status === "success" ? d = "reg-badge-success" : r.status.startsWith("blocked_") ? d = "reg-badge-danger" : r.status === "disabled" && (d = "reg-badge-warning"), /* @__PURE__ */ t("tr", { children: [
             /* @__PURE__ */ e("td", { style: { whiteSpace: "nowrap", color: "var(--reg-text-subtle)", fontSize: "0.75rem" }, children: new Date(r.created_at).toLocaleString() }),
@@ -524,8 +524,8 @@ function Q() {
     /* @__PURE__ */ e("p", { style: { color: "var(--reg-text-muted)" }, children: "Root administrator privileges are required to view this page." })
   ] });
 }
-const ee = ({ isOpen: m, onClose: o, onSwitchToLogin: h }) => {
-  const [n, v] = l({
+const ae = ({ isOpen: p, onClose: o, onSwitchToLogin: m }) => {
+  const [n, N] = l({
     enabled: !0,
     auto_login: !0,
     require_terms: !1,
@@ -536,119 +536,153 @@ const ee = ({ isOpen: m, onClose: o, onSwitchToLogin: h }) => {
     min_password_length: 8,
     require_special_char: !0,
     require_number: !0
-  }), [w, _] = l(!0), [N, f] = l(""), [a, i] = l(""), [c, y] = l(""), [x, A] = l(""), [g, L] = l(""), [u, W] = l(""), [S, M] = l(!1), [C, r] = l(!1), [d, F] = l(!1), [I, p] = l(null), [U, H] = l(null), [$, re] = l("");
-  R(() => {
-    if (!m) return;
+  }), [x, _] = l(!0), [w, b] = l(""), [a, i] = l(""), [c, v] = l(""), [k, T] = l(""), [u, q] = l(""), [f, I] = l(""), [P, j] = l(!1), [C, r] = l(!1), [d, F] = l(!1), [U, y] = l(null), [O, $] = l(null), [G, se] = l("");
+  E(() => {
+    if (!p) return;
     (async () => {
-      const b = [
+      const g = [
         "/api/public/registration/config",
         "/auth/public-register/config",
         "/api/client/extensions/user-registration/config"
       ];
-      for (const z of b)
+      for (const S of g)
         try {
-          const T = await fetch(z, {
+          const L = await fetch(S, {
             headers: { Accept: "application/json" }
           });
-          if (T.ok) {
-            const q = await T.json();
-            v(q);
+          if (L.ok) {
+            const W = await L.json();
+            N(W);
             break;
           }
         } catch {
         }
       _(!1);
     })();
-  }, [m]);
+  }, [p]);
   const B = ((s) => {
-    let b = 0;
-    return s ? (s.length >= (n.min_password_length || 8) && b++, /[0-9]/.test(s) && b++, /[^a-zA-Z0-9]/.test(s) && b++, /[A-Z]/.test(s) && /[a-z]/.test(s) && b++, b <= 1 ? { score: 1, text: "Weak", color: "#ef4444" } : b === 2 ? { score: 2, text: "Fair", color: "#f59e0b" } : b === 3 ? { score: 3, text: "Good", color: "var(--reg-primary, #2563eb)" } : { score: 4, text: "Strong", color: "#10b981" }) : { score: 0, text: "", color: "transparent" };
-  })(g), K = g.length > 0 && u.length > 0 && g === u, X = u.length > 0 && g !== u, G = async (s) => {
-    if (s.preventDefault(), p(null), !N.trim() || !a.trim()) {
-      p("Please enter both your first and last name.");
+    let g = 0;
+    return s ? (s.length >= (n.min_password_length || 8) && g++, /[0-9]/.test(s) && g++, /[^a-zA-Z0-9]/.test(s) && g++, /[A-Z]/.test(s) && /[a-z]/.test(s) && g++, g <= 1 ? { score: 1, text: "Weak", color: "#ef4444" } : g === 2 ? { score: 2, text: "Fair", color: "#f59e0b" } : g === 3 ? { score: 3, text: "Good", color: "var(--reg-primary, #2563eb)" } : { score: 4, text: "Strong", color: "#10b981" }) : { score: 0, text: "", color: "transparent" };
+  })(u), V = u.length > 0 && f.length > 0 && u === f, J = f.length > 0 && u !== f, Z = () => {
+    const s = document.querySelector('meta[name="csrf-token"], meta[name="_token"]');
+    if (s && s.getAttribute("content"))
+      return s.getAttribute("content");
+    const g = document.querySelector('input[name="_token"]');
+    if (g && g.value)
+      return g.value;
+    const S = document.cookie.match(/(?:^|;\s*)(?:XSRF-TOKEN|csrf_token)=([^;]+)/);
+    if (S)
+      try {
+        return decodeURIComponent(S[1]);
+      } catch {
+        return S[1];
+      }
+    return window.PterodactylUser?.csrfToken || window.Pterodactyl?.csrfToken || "";
+  }, Y = async (s) => {
+    if (s.preventDefault(), y(null), !w.trim() || !a.trim()) {
+      y("Please enter both your first and last name.");
       return;
     }
     if (!c.trim() || c.length < 3) {
-      p("Username must be at least 3 characters long.");
+      y("Username must be at least 3 characters long.");
       return;
     }
     if (!/^[a-zA-Z0-9_\-\.]+$/.test(c)) {
-      p("Username can only contain letters, numbers, hyphens, and underscores.");
+      y("Username can only contain letters, numbers, hyphens, and underscores.");
       return;
     }
-    if (!x.trim() || !x.includes("@")) {
-      p("Please provide a valid email address.");
+    if (!k.trim() || !k.includes("@")) {
+      y("Please provide a valid email address.");
       return;
     }
-    if (g.length < (n.min_password_length || 8)) {
-      p(`Password must be at least ${n.min_password_length || 8} characters long.`);
+    if (u.length < (n.min_password_length || 8)) {
+      y(`Password must be at least ${n.min_password_length || 8} characters long.`);
       return;
     }
-    if (n.require_number && !/[0-9]/.test(g)) {
-      p("Password must include at least one number.");
+    if (n.require_number && !/[0-9]/.test(u)) {
+      y("Password must include at least one number.");
       return;
     }
-    if (n.require_special_char && !/[^a-zA-Z0-9]/.test(g)) {
-      p("Password must include at least one special character or symbol.");
+    if (n.require_special_char && !/[^a-zA-Z0-9]/.test(u)) {
+      y("Password must include at least one special character or symbol.");
       return;
     }
-    if (g !== u) {
-      p("Passwords do not match.");
+    if (u !== f) {
+      y("Passwords do not match.");
       return;
     }
-    if (n.require_terms && !S) {
-      p("You must agree to the Terms of Service & Privacy Policy.");
+    if (n.require_terms && !P) {
+      y("You must agree to the Terms of Service & Privacy Policy.");
       return;
     }
     F(!0);
-    const b = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content") || "", z = {
-      firstname: N.trim(),
+    try {
+      await fetch("/sanctum/csrf-cookie", { credentials: "same-origin" }).catch(() => null);
+    } catch {
+    }
+    const g = Z(), S = {
+      firstname: w.trim(),
       lastname: a.trim(),
+      name_first: w.trim(),
+      name_last: a.trim(),
       username: c.trim(),
-      email: x.trim(),
-      password: g,
-      password_confirmation: u,
-      terms: S,
-      captcha_token: $
-    }, T = [
+      email: k.trim(),
+      password: u,
+      password_confirmation: f,
+      terms: P,
+      captcha_token: G,
+      _token: g
+    }, L = [
       "/api/public/registration/register",
+      "/api/public/registration",
       "/auth/public-register/register",
       "/auth/public-register",
       "/api/client/extensions/user-registration/register"
     ];
-    let q = !1;
-    for (const V of T)
+    let W = !1, H = "";
+    for (const Q of L)
       try {
-        const E = await fetch(V, {
+        const M = await fetch(Q, {
           method: "POST",
           headers: {
             Accept: "application/json",
             "Content-Type": "application/json",
-            "X-CSRF-TOKEN": b,
+            ...g ? { "X-CSRF-TOKEN": g, "X-XSRF-TOKEN": g } : {},
             "X-Requested-With": "XMLHttpRequest"
           },
           credentials: "same-origin",
-          body: JSON.stringify(z)
+          body: JSON.stringify(S)
         });
-        if (E.status === 404)
+        if (M.status === 404)
           continue;
-        const k = await E.json().catch(() => null);
-        if (!k) continue;
-        if (E.ok && k.success) {
-          q = !0, H(k.message || "Account created successfully! Redirecting to login..."), setTimeout(() => {
-            window.location.href = k.redirect || "/auth/login";
+        const h = await M.json().catch(() => null);
+        if (!h) continue;
+        if (M.ok && h.success) {
+          W = !0, $(h.message || "Account created successfully! Redirecting..."), setTimeout(() => {
+            window.location.href = h.redirect || "/auth/login";
           }, 1200);
           break;
-        } else if (k.error || k.errors) {
-          const J = k.error || (Array.isArray(k.errors) ? k.errors[0]?.detail : null) || "Registration failed.";
-          p(J);
+        }
+        let A = "";
+        if (h.error && typeof h.error == "string")
+          A = h.error;
+        else if (h.message && typeof h.message == "string" && !h.message.includes("CSRF"))
+          A = h.message;
+        else if (Array.isArray(h.errors) && h.errors.length > 0)
+          A = h.errors[0]?.detail || h.errors[0]?.message || String(h.errors[0]);
+        else if (h.errors && typeof h.errors == "object") {
+          const X = Object.values(h.errors).flat()[0];
+          X && (A = String(X));
+        }
+        if (A) {
+          H = A, y(A);
           break;
         }
       } catch {
       }
-    !q && !I && p("Registration failed. Please check your information and try again."), F(!1);
+    !W && !H && y("Registration failed. Please check your information and try again."), F(!1);
   };
-  return m ? /* @__PURE__ */ e("div", { className: "reg-modal-backdrop", onClick: o, children: /* @__PURE__ */ t("div", { className: "reg-modal-card", onClick: (s) => s.stopPropagation(), children: [
+  return p ? /* @__PURE__ */ e("div", { className: "reg-modal-backdrop", onClick: o, children: /* @__PURE__ */ t("div", { className: "reg-modal-card", onClick: (s) => s.stopPropagation(), children: [
     /* @__PURE__ */ e("button", { type: "button", className: "reg-modal-close", onClick: o, title: "Close", children: /* @__PURE__ */ t("svg", { viewBox: "0 0 24 24", width: "18", height: "18", stroke: "currentColor", strokeWidth: "2", fill: "none", children: [
       /* @__PURE__ */ e("line", { x1: "18", y1: "6", x2: "6", y2: "18" }),
       /* @__PURE__ */ e("line", { x1: "6", y1: "6", x2: "18", y2: "18" })
@@ -657,12 +691,12 @@ const ee = ({ isOpen: m, onClose: o, onSwitchToLogin: h }) => {
       /* @__PURE__ */ e("h2", { style: { fontSize: "1.25rem", fontWeight: 700, color: "#ffffff", margin: "0 0 6px 0" }, children: "Create an Account" }),
       /* @__PURE__ */ e("p", { style: { fontSize: "0.8125rem", color: "var(--reg-text-muted)", margin: 0 }, children: "Join the platform to deploy, configure, and manage your game servers." })
     ] }),
-    !w && !n.enabled ? /* @__PURE__ */ e("div", { className: "reg-alert reg-alert-danger", children: /* @__PURE__ */ e("span", { children: "Public registration is currently disabled by administrator." }) }) : U ? (
+    !x && !n.enabled ? /* @__PURE__ */ e("div", { className: "reg-alert reg-alert-danger", children: /* @__PURE__ */ e("span", { children: "Public registration is currently disabled by administrator." }) }) : O ? (
       /* Success View */
       /* @__PURE__ */ t("div", { style: { textAlign: "center", padding: "24px 8px" }, children: [
         /* @__PURE__ */ e("div", { style: { width: 48, height: 48, borderRadius: "50%", background: "rgba(16, 185, 129, 0.15)", border: "1px solid rgba(16, 185, 129, 0.3)", display: "inline-flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }, children: /* @__PURE__ */ e("svg", { viewBox: "0 0 24 24", width: "24", height: "24", stroke: "#10b981", strokeWidth: "2.5", fill: "none", children: /* @__PURE__ */ e("polyline", { points: "20 6 9 17 4 12" }) }) }),
         /* @__PURE__ */ e("h3", { style: { fontSize: "1.15rem", fontWeight: 600, color: "#ffffff", margin: "0 0 8px 0" }, children: "Registration Successful!" }),
-        /* @__PURE__ */ e("p", { style: { fontSize: "0.84rem", color: "var(--reg-text-muted)", margin: "0 0 20px 0", lineHeight: 1.5 }, children: U }),
+        /* @__PURE__ */ e("p", { style: { fontSize: "0.84rem", color: "var(--reg-text-muted)", margin: "0 0 20px 0", lineHeight: 1.5 }, children: O }),
         /* @__PURE__ */ t("div", { style: { display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontSize: "0.8125rem", color: "var(--reg-primary, #2563eb)", marginBottom: 18 }, children: [
           /* @__PURE__ */ e("span", { className: "reg-spinner", style: { borderTopColor: "var(--reg-primary, #2563eb)" } }),
           /* @__PURE__ */ e("span", { children: "Redirecting to login..." })
@@ -674,7 +708,7 @@ const ee = ({ isOpen: m, onClose: o, onSwitchToLogin: h }) => {
             className: "reg-btn reg-btn-primary",
             style: { width: "100%", height: 42 },
             onClick: () => {
-              h ? h() : window.location.href = "/auth/login";
+              m ? m() : window.location.href = "/auth/login";
             },
             children: "Proceed to Login"
           }
@@ -682,14 +716,14 @@ const ee = ({ isOpen: m, onClose: o, onSwitchToLogin: h }) => {
       ] })
     ) : (
       /* Form View */
-      /* @__PURE__ */ t("form", { onSubmit: G, children: [
-        I && /* @__PURE__ */ t("div", { className: "reg-alert reg-alert-danger", children: [
+      /* @__PURE__ */ t("form", { onSubmit: Y, children: [
+        U && /* @__PURE__ */ t("div", { className: "reg-alert reg-alert-danger", children: [
           /* @__PURE__ */ t("svg", { viewBox: "0 0 24 24", width: "16", height: "16", stroke: "currentColor", strokeWidth: "2", fill: "none", style: { flexShrink: 0 }, children: [
             /* @__PURE__ */ e("circle", { cx: "12", cy: "12", r: "10" }),
             /* @__PURE__ */ e("line", { x1: "12", y1: "8", x2: "12", y2: "12" }),
             /* @__PURE__ */ e("line", { x1: "12", y1: "16", x2: "12.01", y2: "16" })
           ] }),
-          /* @__PURE__ */ e("span", { children: I })
+          /* @__PURE__ */ e("span", { children: U })
         ] }),
         /* @__PURE__ */ t("div", { className: "reg-form-grid-2", children: [
           /* @__PURE__ */ t("div", { children: [
@@ -700,8 +734,8 @@ const ee = ({ isOpen: m, onClose: o, onSwitchToLogin: h }) => {
                 type: "text",
                 className: "reg-input",
                 placeholder: "John",
-                value: N,
-                onChange: (s) => f(s.target.value),
+                value: w,
+                onChange: (s) => b(s.target.value),
                 required: !0,
                 autoComplete: "given-name"
               }
@@ -737,7 +771,7 @@ const ee = ({ isOpen: m, onClose: o, onSwitchToLogin: h }) => {
                 className: "reg-input has-icon",
                 placeholder: "johndoe",
                 value: c,
-                onChange: (s) => y(s.target.value.toLowerCase().replace(/\s+/g, "")),
+                onChange: (s) => v(s.target.value.toLowerCase().replace(/\s+/g, "")),
                 required: !0,
                 autoComplete: "username"
               }
@@ -757,8 +791,8 @@ const ee = ({ isOpen: m, onClose: o, onSwitchToLogin: h }) => {
                 type: "email",
                 className: "reg-input has-icon",
                 placeholder: "john@example.com",
-                value: x,
-                onChange: (s) => A(s.target.value),
+                value: k,
+                onChange: (s) => T(s.target.value),
                 required: !0,
                 autoComplete: "email"
               }
@@ -778,8 +812,8 @@ const ee = ({ isOpen: m, onClose: o, onSwitchToLogin: h }) => {
                 type: C ? "text" : "password",
                 className: "reg-input has-icon has-icon-right",
                 placeholder: "••••••••••••",
-                value: g,
-                onChange: (s) => L(s.target.value),
+                value: u,
+                onChange: (s) => q(s.target.value),
                 required: !0,
                 autoComplete: "new-password"
               }
@@ -801,7 +835,7 @@ const ee = ({ isOpen: m, onClose: o, onSwitchToLogin: h }) => {
               }
             )
           ] }),
-          g.length > 0 && /* @__PURE__ */ t("div", { className: "reg-strength-container", children: [
+          u.length > 0 && /* @__PURE__ */ t("div", { className: "reg-strength-container", children: [
             /* @__PURE__ */ e("div", { className: "reg-strength-bars", children: [1, 2, 3, 4].map((s) => /* @__PURE__ */ e(
               "div",
               {
@@ -838,14 +872,14 @@ const ee = ({ isOpen: m, onClose: o, onSwitchToLogin: h }) => {
                 type: C ? "text" : "password",
                 className: "reg-input has-icon has-icon-right",
                 placeholder: "••••••••••••",
-                value: u,
-                onChange: (s) => W(s.target.value),
+                value: f,
+                onChange: (s) => I(s.target.value),
                 required: !0,
                 autoComplete: "new-password"
               }
             ),
-            K && /* @__PURE__ */ e("span", { style: { position: "absolute", right: 12, color: "#10b981", display: "flex", alignItems: "center" }, children: /* @__PURE__ */ e("svg", { viewBox: "0 0 24 24", width: "16", height: "16", stroke: "currentColor", strokeWidth: "2.5", fill: "none", children: /* @__PURE__ */ e("polyline", { points: "20 6 9 17 4 12" }) }) }),
-            X && /* @__PURE__ */ e("span", { style: { position: "absolute", right: 12, color: "#ef4444", display: "flex", alignItems: "center" }, children: /* @__PURE__ */ t("svg", { viewBox: "0 0 24 24", width: "16", height: "16", stroke: "currentColor", strokeWidth: "2.5", fill: "none", children: [
+            V && /* @__PURE__ */ e("span", { style: { position: "absolute", right: 12, color: "#10b981", display: "flex", alignItems: "center" }, children: /* @__PURE__ */ e("svg", { viewBox: "0 0 24 24", width: "16", height: "16", stroke: "currentColor", strokeWidth: "2.5", fill: "none", children: /* @__PURE__ */ e("polyline", { points: "20 6 9 17 4 12" }) }) }),
+            J && /* @__PURE__ */ e("span", { style: { position: "absolute", right: 12, color: "#ef4444", display: "flex", alignItems: "center" }, children: /* @__PURE__ */ t("svg", { viewBox: "0 0 24 24", width: "16", height: "16", stroke: "currentColor", strokeWidth: "2.5", fill: "none", children: [
               /* @__PURE__ */ e("line", { x1: "18", y1: "6", x2: "6", y2: "18" }),
               /* @__PURE__ */ e("line", { x1: "6", y1: "6", x2: "18", y2: "18" })
             ] }) })
@@ -856,8 +890,8 @@ const ee = ({ isOpen: m, onClose: o, onSwitchToLogin: h }) => {
             "input",
             {
               type: "checkbox",
-              checked: S,
-              onChange: (s) => M(s.target.checked),
+              checked: P,
+              onChange: (s) => j(s.target.checked),
               style: { marginTop: 2, accentColor: "var(--reg-primary, #2563eb)" },
               required: !0
             }
@@ -880,7 +914,7 @@ const ee = ({ isOpen: m, onClose: o, onSwitchToLogin: h }) => {
             className: "reg-btn reg-btn-primary",
             style: { width: "100%", height: 42, fontSize: "0.9rem" },
             disabled: d,
-            children: d ? /* @__PURE__ */ t(j, { children: [
+            children: d ? /* @__PURE__ */ t(z, { children: [
               /* @__PURE__ */ e("span", { className: "reg-spinner" }),
               /* @__PURE__ */ e("span", { children: "Creating Account..." })
             ] }) : "Create Account"
@@ -894,7 +928,7 @@ const ee = ({ isOpen: m, onClose: o, onSwitchToLogin: h }) => {
             {
               type: "button",
               onClick: () => {
-                h ? h() : window.location.href = "/auth/login";
+                m ? m() : window.location.href = "/auth/login";
               },
               style: { background: "transparent", border: "none", color: "var(--reg-primary, #2563eb)", fontWeight: 600, cursor: "pointer", padding: 0 },
               children: "Sign in here →"
@@ -904,44 +938,44 @@ const ee = ({ isOpen: m, onClose: o, onSwitchToLogin: h }) => {
       ] })
     )
   ] }) }) : null;
-}, te = () => {
-  const [m, o] = l(!1);
-  return R(() => {
+}, ie = () => {
+  const [p, o] = l(!1);
+  return E(() => {
     const n = () => {
-      const v = window.location.pathname.toLowerCase(), w = window.location.hash.toLowerCase();
-      (v.endsWith("/register") || w === "#register") && o(!0);
+      const N = window.location.pathname.toLowerCase(), x = window.location.hash.toLowerCase();
+      (N.endsWith("/register") || x === "#register") && o(!0);
     };
     return n(), window.addEventListener("hashchange", n), () => window.removeEventListener("hashchange", n);
-  }, []), R(() => {
+  }, []), E(() => {
     if (typeof document > "u") return;
-    const n = "pteroext-reg-inline-link", v = "pteroext-reg-inline-container", w = () => {
+    const n = "pteroext-reg-inline-link", N = "pteroext-reg-inline-container", x = () => {
       if (window.PterodactylUser || document.getElementById(n) || !(window.location.pathname.includes("/auth") || window.location.pathname.includes("/login"))) return;
-      const f = document.querySelector('a[href*="/auth/password"], a[href*="/password"]');
-      if (!f) return;
+      const b = document.querySelector('a[href*="/auth/password"], a[href*="/password"]');
+      if (!b) return;
       const a = document.createElement("div");
-      a.id = v;
+      a.id = N;
       const i = document.createElement("a");
-      i.id = n, i.href = "#register", i.textContent = "Create an account", f.className && (i.className = f.className);
-      const c = window.getComputedStyle(f);
+      i.id = n, i.href = "#register", i.textContent = "Create an account", b.className && (i.className = b.className);
+      const c = window.getComputedStyle(b);
       i.style.fontFamily = c.fontFamily, i.style.fontSize = c.fontSize, i.style.fontWeight = c.fontWeight, i.style.lineHeight = c.lineHeight, i.style.letterSpacing = c.letterSpacing, i.style.textTransform = c.textTransform, i.style.cursor = "pointer", i.style.display = "inline-block";
-      const y = f.parentElement;
-      y && (window.getComputedStyle(y).display === "flex" || y.className.includes("flex")) && y.children.length > 1 && y ? (a.style.display = "block", a.style.textAlign = "right", a.style.marginTop = "4px", a.style.marginBottom = "2px", y.insertAdjacentElement("afterend", a)) : y && (a.style.display = "block", a.style.marginTop = "6px", a.style.textAlign = c.textAlign || "center", f.insertAdjacentElement("afterend", a)), i.addEventListener("click", (A) => {
-        A.preventDefault(), o(!0);
+      const v = b.parentElement;
+      v && (window.getComputedStyle(v).display === "flex" || v.className.includes("flex")) && v.children.length > 1 && v ? (a.style.display = "block", a.style.textAlign = "right", a.style.marginTop = "4px", a.style.marginBottom = "2px", v.insertAdjacentElement("afterend", a)) : v && (a.style.display = "block", a.style.marginTop = "6px", a.style.textAlign = c.textAlign || "center", b.insertAdjacentElement("afterend", a)), i.addEventListener("click", (T) => {
+        T.preventDefault(), o(!0);
       }), a.appendChild(i);
     };
-    w();
+    x();
     const _ = new MutationObserver(() => {
-      w();
+      x();
     });
     return _.observe(document.body, { childList: !0, subtree: !0 }), () => {
       _.disconnect();
-      const N = document.getElementById(v);
-      N && N.remove();
+      const w = document.getElementById(N);
+      w && w.remove();
     };
   }, []), typeof window < "u" && !!window.PterodactylUser ? null : /* @__PURE__ */ e(
-    ee,
+    ae,
     {
-      isOpen: m,
+      isOpen: p,
       onClose: () => {
         o(!1), window.location.hash === "#register" && history.replaceState(null, "", window.location.pathname);
       },
@@ -951,24 +985,24 @@ const ee = ({ isOpen: m, onClose: o, onSwitchToLogin: h }) => {
     }
   );
 };
-let O = !1;
+let K = !1;
 function D() {
-  if (typeof document > "u" || O || !!window.PterodactylUser) return;
+  if (typeof document > "u" || K || !!window.PterodactylUser) return;
   const o = "pteroext-user-registration-root";
-  let h = document.getElementById(o);
-  h || (h = document.createElement("div"), h.id = o, document.body.appendChild(h));
+  let m = document.getElementById(o);
+  m || (m = document.createElement("div"), m.id = o, document.body.appendChild(m));
   try {
-    Y(h).render(/* @__PURE__ */ e(te, {})), O = !0;
+    te(m).render(/* @__PURE__ */ e(ie, {})), K = !0;
   } catch (n) {
     console.warn("[UserRegistration] Failed to mount public registration host:", n);
   }
 }
 typeof document < "u" && (document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", () => D()) : setTimeout(() => D(), 100));
-const oe = Z({
-  setup({ screens: m } = {}) {
-    m && typeof m.register == "function" && m.register("admin-registration", () => Promise.resolve({ default: Q })), D();
+const he = ee({
+  setup({ screens: p } = {}) {
+    p && typeof p.register == "function" && p.register("admin-registration", () => Promise.resolve({ default: re })), D();
   }
 });
 export {
-  oe as default
+  he as default
 };

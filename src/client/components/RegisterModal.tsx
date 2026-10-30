@@ -95,6 +95,26 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, o
     const passwordsMatch = password.length > 0 && passwordConfirm.length > 0 && password === passwordConfirm;
     const passwordsMismatch = passwordConfirm.length > 0 && password !== passwordConfirm;
 
+    const getCsrfToken = (): string => {
+        const meta = document.querySelector('meta[name="csrf-token"], meta[name="_token"]');
+        if (meta && meta.getAttribute('content')) {
+            return meta.getAttribute('content')!;
+        }
+        const input = document.querySelector('input[name="_token"]') as HTMLInputElement;
+        if (input && input.value) {
+            return input.value;
+        }
+        const match = document.cookie.match(/(?:^|;\s*)(?:XSRF-TOKEN|csrf_token)=([^;]+)/);
+        if (match) {
+            try {
+                return decodeURIComponent(match[1]);
+            } catch {
+                return match[1];
+            }
+        }
+        return (window as any).PterodactylUser?.csrfToken || (window as any).Pterodactyl?.csrfToken || '';
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setErrorMessage(null);
@@ -147,26 +167,35 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, o
 
         setSubmitting(true);
 
-        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+        try {
+            await fetch('/sanctum/csrf-cookie', { credentials: 'same-origin' }).catch(() => null);
+        } catch {}
+
+        const csrfToken = getCsrfToken();
         const payload = {
             firstname: firstname.trim(),
             lastname: lastname.trim(),
+            name_first: firstname.trim(),
+            name_last: lastname.trim(),
             username: username.trim(),
             email: email.trim(),
             password,
             password_confirmation: passwordConfirm,
             terms: agreedTerms,
             captcha_token: captchaToken,
+            _token: csrfToken,
         };
 
         const endpoints = [
             '/api/public/registration/register',
+            '/api/public/registration',
             '/auth/public-register/register',
             '/auth/public-register',
             '/api/client/extensions/user-registration/register',
         ];
 
         let succeeded = false;
+        let lastError = '';
 
         for (const ep of endpoints) {
             try {
@@ -175,7 +204,7 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, o
                     headers: {
                         'Accept': 'application/json',
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken,
+                        ...(csrfToken ? { 'X-CSRF-TOKEN': csrfToken, 'X-XSRF-TOKEN': csrfToken } : {}),
                         'X-Requested-With': 'XMLHttpRequest',
                     },
                     credentials: 'same-origin',
@@ -191,16 +220,30 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, o
 
                 if (res.ok && data.success) {
                     succeeded = true;
-                    setSuccessMessage(data.message || 'Account created successfully! Redirecting to login...');
+                    setSuccessMessage(data.message || 'Account created successfully! Redirecting...');
 
-                    // Redirect to login after making account as requested
                     setTimeout(() => {
                         window.location.href = data.redirect || '/auth/login';
                     }, 1200);
                     break;
-                } else if (data.error || data.errors) {
-                    const err = data.error || (Array.isArray(data.errors) ? data.errors[0]?.detail : null) || 'Registration failed.';
-                    setErrorMessage(err);
+                }
+
+                // Parse error details
+                let errorText = '';
+                if (data.error && typeof data.error === 'string') {
+                    errorText = data.error;
+                } else if (data.message && typeof data.message === 'string' && !data.message.includes('CSRF')) {
+                    errorText = data.message;
+                } else if (Array.isArray(data.errors) && data.errors.length > 0) {
+                    errorText = data.errors[0]?.detail || data.errors[0]?.message || String(data.errors[0]);
+                } else if (data.errors && typeof data.errors === 'object') {
+                    const firstErr = Object.values(data.errors).flat()[0];
+                    if (firstErr) errorText = String(firstErr);
+                }
+
+                if (errorText) {
+                    lastError = errorText;
+                    setErrorMessage(errorText);
                     break;
                 }
             } catch (err: any) {
@@ -208,7 +251,7 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, o
             }
         }
 
-        if (!succeeded && !errorMessage) {
+        if (!succeeded && !lastError) {
             setErrorMessage('Registration failed. Please check your information and try again.');
         }
 

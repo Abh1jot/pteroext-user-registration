@@ -79,14 +79,15 @@ class UserRegistrationProvider extends ExtensionProvider
      */
     protected function registerPublicRoutes(): void
     {
-        // Public API endpoints for visitor registration (throttled, guest-accessible, no auth requirement)
+        // Public API endpoints for visitor registration (throttled, guest-accessible, no CSRF requirement)
         Route::middleware(['throttle:30,1'])->prefix('api/public/registration')->group(function () {
             Route::get('/config', [RegistrationController::class, 'getPublicConfig']);
+            Route::post('/', [RegistrationController::class, 'register']);
             Route::post('/register', [RegistrationController::class, 'register']);
         });
 
-        // Also register under auth prefix for panels that route all visitor auth traffic under /auth/*
-        Route::middleware(['throttle:30,1'])->prefix('auth/public-register')->group(function () {
+        // Web session endpoints for panels routing auth under /auth/*
+        Route::middleware(['web', 'throttle:30,1'])->prefix('auth/public-register')->group(function () {
             Route::get('/config', [RegistrationController::class, 'getPublicConfig']);
             Route::post('/', [RegistrationController::class, 'register']);
             Route::post('/register', [RegistrationController::class, 'register']);
